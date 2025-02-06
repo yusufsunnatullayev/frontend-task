@@ -22,17 +22,32 @@ export const addCompany = async (companyData: Company) => {
 };
 
 // GET ALL COMPANIES 🚩
-export const getCompanies = async () => {
+export const getCompanies = async ({
+  page,
+  limit,
+}: {
+  page: number;
+  limit: number;
+}) => {
   const access_token = getAuthToken();
   if (!access_token) throw new Error("No token found!");
 
-  const res = await companyApi.get("/get-all", {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-  });
+  const res = await companyApi.get(
+    `/get-all?PageSize=${limit}&PageIndex=${page}`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
   if (res.status !== 200) throw new Error("Failed to get companies!");
-  return res.data;
+
+  const companies = res.data;
+
+  // Workaround: If the number of returned items < limit, it means no more pages
+  const hasNextPage = companies.length === limit;
+
+  return { items: companies, nextPage: hasNextPage ? page + 1 : null };
 };
 
 // GET COMPANY BY ID 🚩

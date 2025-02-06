@@ -48,6 +48,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
 
   return (
     <Table<Company>
+      pagination={false}
       columns={columns}
       dataSource={companies}
       rowKey="id"
